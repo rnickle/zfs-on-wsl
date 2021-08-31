@@ -12,7 +12,7 @@ There are two ways of working with the files in this repo -
 
 The instructions below are written with the assumption that you are downloading the files straight from this repo, but should be reasonably easy to follow without much modification if you are running the build script locally yourself.
 
-### Installation Procedure
+## Installation Procedure
 Stop the WSL2 VM:
 ```bat
 wsl --shutdown
@@ -77,3 +77,18 @@ sudo zpool status
 ```
 
 Now you can create ZFS pools within WSL2 by passing raw disks through to the WSL2 VM, [as described by the Microsoft Docs for WSL](https://docs.microsoft.com/en-us/windows/wsl/wsl2-mount-disk).
+
+## Built-in ZFS filesystem
+
+```bash
+root# ./build_wsl_kernel.sh -v -b yes -j 4 -n zfswsl-builtin
+```
+
+## Loadable ZFS filesystem
+
+```bash
+root# ./build_wsl_kernel.sh -v -b no -j 4 -n zfswsl-loadable
+```
+
+
+
