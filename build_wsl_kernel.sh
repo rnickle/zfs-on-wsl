@@ -5,7 +5,7 @@ if [[ "$EUID" -ne 0 ]]; then echo "-E- $0 should run as root."; exit; fi
 
 VERBOSE="false"
 
-while getopts ":b:fhj:k:n:s:vz:" opt; do
+while getopts ":b:fhj:k:n:qs:vz:" opt; do
   case $opt in
     b)
       OKBUILTIN=$OPTARG
@@ -22,6 +22,7 @@ while getopts ":b:fhj:k:n:s:vz:" opt; do
       echo "       -j number-of-make-jobs"
       echo "       -k kernel-version"
       echo "       -n build-name"
+      echo "       -q build for Hyper-V"
       echo "       -s source vars-file"
       echo "       -v verbose"
       echo "       -z zfs-version"
@@ -32,6 +33,9 @@ while getopts ":b:fhj:k:n:s:vz:" opt; do
       ;;
     k)
       OKVER=$OPTARG
+      ;;
+    q)
+      OHYPERV="true"
       ;;
     n)
       OKNAME=$OPTARG
@@ -162,9 +166,7 @@ make prepare
 make -j "$ONPROC"
 
 # Only download and extract if does not exist or ODLFORCE
-if [[ ! -d "$ZFS_SRC" || ${ODLFORCE:-false} == "true" ]]
-  then
-
+if [[ ! -d "$ZFS_SRC" || ${ODLFORCE:-false} == "true" ]]; then
   # Download and extract the latest ZFS source
   wget "$ZFS_URL" -O /tmp/kbuild/"$ZFS_TAR"
   tar -xf /tmp/kbuild/"$ZFS_TAR" -C /tmp/kbuild
@@ -209,8 +211,10 @@ make modules_install
 # (We don't save it as bzImage in case we overwrite the kernel we're actually running
 # so after the build process is done, the user will need to shutdown WSL and then rename
 # the bzImage-new kernel to bzImage)
-mkdir -p /mnt/c/ZFSonWSL
-cp -fv "$LINUX_SRC"/arch/x86/boot/bzImage /mnt/c/ZFSonWSL/bzImage-new
+if [[ ${OHYPERV:-false} == "false" ]]; then
+  mkdir -p /mnt/c/ZFSonWSL
+  cp -fv "$LINUX_SRC"/arch/x86/boot/bzImage /mnt/c/ZFSonWSL/bzImage-new
+fi
 
 # Tar up the build directories for the kernel and for ZFS
 # Mostly useful for our GitLab CI process but might help with redistribution
