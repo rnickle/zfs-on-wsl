@@ -163,7 +163,7 @@ make olddefconfig
 # Check and resolve any dependencies needed before building the kernel
 make prepare
 
-make -j "$ONPROC"
+make -j "${ONPROC:-2}"
 
 # Only download and extract if does not exist or ODLFORCE
 if [[ ! -d "$ZFS_SRC" || ${ODLFORCE:-false} == "true" ]]; then
@@ -189,7 +189,7 @@ cd "$ZFS_SRC"
 ./copy-builtin "$LINUX_SRC"
 
 # Build ZFS!
-make -s -j "$ONPROC"
+make -s -j "${ONPROC:-2}"
 make install
 
 # Return to the kernel directory
@@ -204,7 +204,7 @@ else
 fi
 
 # Build our kernel and install the modules into /lib/modules!
-make -j "$ONPROC"
+make -j "${ONPROC:-2}"
 make modules_install
 
 # Copy our kernel to C:\ZFSonWSL\bzImage
